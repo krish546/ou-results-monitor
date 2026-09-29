@@ -5,6 +5,8 @@ from urllib.parse import urljoin
 
 import requests
 import urllib3
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 from bs4 import BeautifulSoup
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -26,13 +28,26 @@ def get_results():
         )
     }
 
-    response = requests.get(
+   retry_strategy = Retry(
+    total=3,
+    connect=3,
+    read=3,
+    backoff_factor=5,
+    status_forcelist=[429, 500, 502, 503, 504],
+    allowed_methods=["GET"]
+)
+
+session = requests.Session()
+session.mount("https://", HTTPAdapter(max_retries=retry_strategy))
+
+response = session.get(
     OU_RESULTS_URL,
     headers=headers,
-    timeout=30,
+    timeout=45,
     verify=False
 )
-    response.raise_for_status()
+
+response.raise_for_status()
 
     soup = BeautifulSoup(response.text, "html.parser")
 
