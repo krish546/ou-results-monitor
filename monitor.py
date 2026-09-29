@@ -162,20 +162,6 @@ def send_telegram(result):
 
 
 def main():
-    # Manual simulation test.
-    # This runs only when SIMULATE_NEW_RESULT=1.
-    if os.environ.get("SIMULATE_NEW_RESULT") == "1":
-        test_result = {
-            "title": "TEST - OU B.Tech Semester Examination Results",
-            "date": "29-09-2026",
-            "url": OU_RESULTS_URL
-        }
-
-        print("Simulating a new OU result...")
-        send_telegram(test_result)
-        print("Test result notification sent successfully.")
-        return
-
     print("Checking Osmania University results...")
 
     current_results = get_results()
