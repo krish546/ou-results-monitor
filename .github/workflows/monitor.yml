@@ -1,0 +1,47 @@
+name: OU Results Monitor
+
+on:
+  workflow_dispatch:
+
+  schedule:
+    - cron: "*/5 * * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Check OU results
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python monitor.py
+
+      - name: Save monitored results
+        run: |
+          if [ -f seen_results.json ]; then
+            git config user.name "OU Results Monitor"
+            git config user.email "actions@github.com"
+            git add seen_results.json
+
+            if ! git diff --cached --quiet; then
+              git commit -m "Update monitored OU results"
+              git push
+            else
+              echo "No changes to save."
+            fi
+          fi
