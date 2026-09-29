@@ -18,7 +18,6 @@ SEEN_FILE = "seen_results.json"
 BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
 CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
 
-
 def get_results():
     headers = {
         "User-Agent": (
@@ -28,26 +27,29 @@ def get_results():
         )
     }
 
-   retry_strategy = Retry(
-    total=3,
-    connect=3,
-    read=3,
-    backoff_factor=5,
-    status_forcelist=[429, 500, 502, 503, 504],
-    allowed_methods=["GET"]
-)
+    retry_strategy = Retry(
+        total=3,
+        connect=3,
+        read=3,
+        backoff_factor=5,
+        status_forcelist=[429, 500, 502, 503, 504],
+        allowed_methods=["GET"]
+    )
 
-session = requests.Session()
-session.mount("https://", HTTPAdapter(max_retries=retry_strategy))
+    session = requests.Session()
+    session.mount(
+        "https://",
+        HTTPAdapter(max_retries=retry_strategy)
+    )
 
-response = session.get(
-    OU_RESULTS_URL,
-    headers=headers,
-    timeout=45,
-    verify=False
-)
+    response = session.get(
+        OU_RESULTS_URL,
+        headers=headers,
+        timeout=45,
+        verify=False
+    )
 
-response.raise_for_status()
+    response.raise_for_status()
 
     soup = BeautifulSoup(response.text, "html.parser")
 
@@ -82,6 +84,7 @@ response.raise_for_status()
                 release_date = cell_text[-1]
 
         unique_string = f"{title}|{url}"
+
         result_id = hashlib.sha256(
             unique_string.encode("utf-8")
         ).hexdigest()
@@ -103,7 +106,6 @@ response.raise_for_status()
             seen_ids.add(result["id"])
 
     return unique_results
-
 
 def load_seen():
     if not os.path.exists(SEEN_FILE):
