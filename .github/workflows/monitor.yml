@@ -2,6 +2,15 @@ name: OU Results Monitor
 
 on:
   workflow_dispatch:
+    inputs:
+      simulate_new_result:
+        description: "Simulate a new OU result"
+        required: false
+        type: boolean
+        default: false
+
+  schedule:
+    - cron: "*/5 * * * *"
 
   schedule:
     - cron: "*/5 * * * *"
@@ -29,10 +38,11 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Check OU results
+            - name: Check OU results
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          SIMULATE_NEW_RESULT: ${{ inputs.simulate_new_result && '1' || '0' }}
         run: python monitor.py
 
       - name: Save monitored results
