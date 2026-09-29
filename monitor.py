@@ -4,7 +4,10 @@ import hashlib
 from urllib.parse import urljoin
 
 import requests
+import urllib3
 from bs4 import BeautifulSoup
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 OU_RESULTS_URL = "https://www.osmania.ac.in/examination-results.php"
@@ -24,10 +27,11 @@ def get_results():
     }
 
     response = requests.get(
-        OU_RESULTS_URL,
-        headers=headers,
-        timeout=30
-    )
+    OU_RESULTS_URL,
+    headers=headers,
+    timeout=30,
+    verify=False
+)
     response.raise_for_status()
 
     soup = BeautifulSoup(response.text, "html.parser")
