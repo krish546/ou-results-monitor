@@ -162,8 +162,9 @@ def send_telegram(result):
 
 
 def main():
-
-        if os.environ.get("SIMULATE_NEW_RESULT") == "1":
+    # Manual simulation test.
+    # This runs only when SIMULATE_NEW_RESULT=1.
+    if os.environ.get("SIMULATE_NEW_RESULT") == "1":
         test_result = {
             "title": "TEST - OU B.Tech Semester Examination Results",
             "date": "29-09-2026",
@@ -174,7 +175,7 @@ def main():
         send_telegram(test_result)
         print("Test result notification sent successfully.")
         return
-    
+
     print("Checking Osmania University results...")
 
     current_results = get_results()
@@ -191,7 +192,7 @@ def main():
     seen_ids = load_seen()
 
     # First run:
-    # Remember everything currently on the page without sending alerts.
+    # Save existing results without sending alerts.
     if seen_ids is None:
         print("First run detected.")
         print("Saving existing results without sending alerts.")
@@ -212,12 +213,12 @@ def main():
     else:
         print(f"Found {len(new_results)} NEW result(s).")
 
-        # Reverse so older new entries are sent first.
+        # Send older new entries first.
         for result in reversed(new_results):
             print(f"Sending alert: {result['title']}")
             send_telegram(result)
 
-    # Keep everything we've ever seen.
+    # Remember everything we've seen.
     save_seen(seen_ids | current_ids)
 
     print("Monitoring check completed.")
