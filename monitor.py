@@ -63,9 +63,9 @@ def get_results():
         if not title or not href:
             continue
 
-        # OU result links normally contain "result" in their URL.
-        if "result" not in href.lower():
-            continue
+        # OU examination result links are under /res07/
+if "/res07/" not in href.lower():
+    continue
 
         url = urljoin(OU_RESULTS_URL, href)
 
