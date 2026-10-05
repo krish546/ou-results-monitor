@@ -37,6 +37,7 @@ def get_results():
     )
 
     session = requests.Session()
+
     session.mount(
         "https://",
         HTTPAdapter(max_retries=retry_strategy)
@@ -55,35 +56,42 @@ def get_results():
 
     results = []
 
-    # Find links on the page that belong to result entries.
     for link in soup.find_all("a", href=True):
-        title = " ".join(link.get_text(" ", strip=True).split())
+        title = " ".join(
+            link.get_text(" ", strip=True).split()
+        )
+
         href = link.get("href", "").strip()
 
         if not title or not href:
             continue
 
         # OU examination result links are under /res07/
-if "/res07/" not in href.lower():
-    continue
+        absolute_url = urljoin(OU_RESULTS_URL, href)
 
-        url = urljoin(OU_RESULTS_URL, href)
+        if "/res07/" not in absolute_url.lower():
+            continue
 
-        # Look for the release date in the same table row.
+        # Find the table row containing this result.
         row = link.find_parent("tr")
+
         release_date = ""
 
         if row:
             cells = row.find_all(["td", "th"])
+
             cell_text = [
-                " ".join(cell.get_text(" ", strip=True).split())
+                " ".join(
+                    cell.get_text(" ", strip=True).split()
+                )
                 for cell in cells
             ]
 
             if len(cell_text) >= 2:
                 release_date = cell_text[-1]
 
-        unique_string = f"{title}|{url}"
+        # Generate a permanent unique ID for this result.
+        unique_string = f"{title}|{absolute_url}"
 
         result_id = hashlib.sha256(
             unique_string.encode("utf-8")
@@ -93,10 +101,10 @@ if "/res07/" not in href.lower():
             "id": result_id,
             "title": title,
             "date": release_date,
-            "url": url
+            "url": absolute_url
         })
 
-    # Remove duplicates while preserving order.
+    # Remove duplicate result links while preserving page order.
     unique_results = []
     seen_ids = set()
 
