@@ -184,6 +184,11 @@ def main():
 
     current_ids = {result["id"] for result in current_results}
     seen_ids = load_seen()
+        # TEMPORARY BASELINE RESET
+    print("Resetting baseline with all current OU results.")
+    save_seen(current_ids)
+    print(f"Baseline reset successfully with {len(current_ids)} results.")
+    return
 
     # First run:
     # Save existing results without sending alerts.
