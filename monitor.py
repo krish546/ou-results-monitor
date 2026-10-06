@@ -139,16 +139,17 @@ def send_telegram(result):
         )
 
     message = (
-        "🔔 <b>New OU Result Published</b>\n\n"
-        f"<b>{result['title']}</b>\n\n"
+        "🎓 <b>OSMANIA UNIVERSITY RESULTS</b>\n\n"
+        "📢 <b>New Result Published</b>\n\n"
+        f"📄 <b>{result['title']}</b>\n"
     )
 
     if result["date"]:
-        message += f"📅 <b>Date:</b> {result['date']}\n"
+        message += f"\n📅 <b>Published:</b> {result['date']}\n"
 
     message += (
-        f"🔗 <a href=\"{result['url']}\">Check Result</a>\n\n"
-        "Osmania University"
+        f"\n🔗 <a href=\"{result['url']}\"><b>CHECK RESULT</b></a>\n\n"
+        "🔔 <b>UniversityUpdates</b>"
     )
 
     telegram_url = (
@@ -167,7 +168,6 @@ def send_telegram(result):
     )
 
     response.raise_for_status()
-
 
 def main():
     print("Checking Osmania University results...")
